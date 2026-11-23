@@ -1,0 +1,32 @@
+# Node / Expo
+node_modules/
+.expo/
+dist/
+web-build/
+*.log
+
+# Environment files (never commit your keys)
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+
+# ML weights and datasets
+*.pt
+*.pth
+*.onnx
+*.tflite
+*.keras
+*.h5
+datasets/
+
+# OS and editors
+.DS_Store
+Thumbs.db
+.vscode/

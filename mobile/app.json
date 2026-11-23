@@ -1,0 +1,25 @@
+{
+  "expo": {
+    "name": "PlantPulse AI",
+    "slug": "plantpulse-ai",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#F2F6EF",
+    "android": {
+      "package": "com.plantpulse.ai"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "Allow PlantPulse AI to take photos of groundnut leaves.",
+          "photosPermission": "Allow PlantPulse AI to select leaf photos."
+        }
+      ]
+    ]
+  }
+}
