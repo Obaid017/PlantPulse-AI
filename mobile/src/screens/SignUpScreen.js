@@ -95,11 +95,29 @@ export default function SignUpScreen({ navigation }) {
       }
 
     } catch (error) {
-      Alert.alert(
-        'Unable to create account',
-        error.message || 'Please try again.'
-      );
 
+      const message = error.message || '';
+
+      if (message.toLowerCase().includes('password')) {
+        Alert.alert(
+          'Check Your Password',
+          'Use at least 8 characters with letters and numbers.'
+        );
+
+      } else if (message.toLowerCase().includes('rate limit')) {
+        Alert.alert(
+          'Please Wait',
+          'Too many attempts. Please try again later.'
+        );
+
+      } else {
+        Alert.alert(
+          'Sign Up Failed',
+          'Unable to create your account. Please check your details and try again.'
+        );
+
+        console.log('Sign up error:', message);
+      }
     } finally {
       setBusy(false);
     }
@@ -154,16 +172,21 @@ export default function SignUpScreen({ navigation }) {
         placeholder="At least 8 characters"
         secureTextEntry
       />
-
       <Text
-        style={{
-          color: colors.muted,
-          fontSize: 13,
-          marginBottom: 12,
-        }}
-      >
-        Use at least 8 characters with letters and numbers.
-      </Text>
+      style={{
+        color: colors.muted,
+        fontSize: 14,
+        marginBottom: 15,
+      }}
+    >
+      Use 8 or more characters with letters and numbers.
+
+      {'\n'}
+
+      پاس ورڈ میں انگریزی حروف اور نمبر استعمال کریں۔
+    </Text>
+
+      
 
       <TextField
         label="Confirm password"

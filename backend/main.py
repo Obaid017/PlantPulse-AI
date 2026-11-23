@@ -7,6 +7,7 @@ from routes.health import router as health_router
 from routes.predict import router as predict_router
 
 app = FastAPI(title="PlantPulse AI API", version="0.1.0")
+app.include_router(predict_router)
 
 # CORS is useful for Expo Web. Phone apps are not browser-origin restricted.
 app.add_middleware(

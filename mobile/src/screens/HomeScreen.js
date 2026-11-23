@@ -1,50 +1,271 @@
-import React from 'react';
-import { Pressable, Text, View } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import ScreenLayout from '../components/ScreenLayout';
 import Brand from '../components/Brand';
+import RecentScanCard from '../components/RecentScanCard';
+import { getScanHistory, reportNavigationParams } from '../services/scanHistoryService';
 import colors from '../constants/colors';
 import { useAuth } from '../context/AuthContext';
 
 export default function HomeScreen({ navigation }) {
   const { session } = useAuth();
-  const fullName = session?.user?.user_metadata?.full_name || 'Grower';
-  const firstName = fullName.split(' ')[0];
+  const [recentScans, setRecentScans] = useState([]);
+  const [loadingScans, setLoadingScans] = useState(true);
+  const [scanError, setScanError] = useState(false);
+
+  const loadRecentScans = useCallback(async () => {
+    if (!session?.user?.id) return;
+    setLoadingScans(true);
+    setScanError(false);
+    try {
+      const scans = await getScanHistory(session.user.id, 3);
+      setRecentScans(scans);
+    } catch (error) {
+      console.warn('Recent checks could not load:', error.message);
+      setScanError(true);
+    } finally {
+      setLoadingScans(false);
+    }
+  }, [session?.user?.id]);
+
+  // Refresh when the farmer returns to Home.
+  useFocusEffect(useCallback(() => { loadRecentScans(); }, [loadRecentScans]));
+
+  function openReport(scan) {
+    navigation.getParent()?.navigate(
+      'SavedScanDetail',
+      {
+        scanId: scan.id,
+      }
+    );  }
+
+  const fullName = session?.user?.user_metadata?.full_name || 'Farmer';
+  const firstName = fullName.trim().split(' ')[0] || 'Farmer';
+
+  function openScan() {
+    navigation.navigate('Scan');
+  }
 
   return (
     <ScreenLayout>
       <Brand small />
-      <Text style={{ fontSize: 12, color: colors.green, letterSpacing: 2, fontWeight: '700', marginTop: 14 }}>WELCOME BACK</Text>
-      <Text style={{ fontSize: 30, fontWeight: '800', color: colors.text, marginTop: 8 }}>Hello, {firstName}! 👋</Text>
-      <Text style={{ color: colors.muted, marginTop: 7, fontSize: 16 }}>A healthier harvest starts with a closer look.</Text>
 
-      <Pressable accessibilityRole="button" onPress={() => navigation.navigate('Scan')} style={{ backgroundColor: colors.forest, borderRadius: 28, padding: 26, marginTop: 30, marginBottom: 28 }}>
-        <Ionicons name="scan-outline" size={36} color={colors.lime} />
-        <Text style={{ fontSize: 29, lineHeight: 36, color: colors.white, fontWeight: '800', marginTop: 20 }}>Check your groundnut leaf</Text>
-        <Text style={{ color: '#DDE9D9', fontSize: 15, lineHeight: 24, marginTop: 10 }}>Take a clear photo to check for visible leaf disease.</Text>
-        <View style={{ backgroundColor: colors.lime, paddingVertical: 17, paddingHorizontal: 17, borderRadius: 15, marginTop: 24, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Text style={{ color: colors.forest, fontSize: 17, fontWeight: '800' }}>Check Leaf  •  پتا چیک کریں</Text>
-          <Ionicons name="arrow-forward" size={22} color={colors.forest} />
+      <Text style={{
+        color: colors.green,
+        fontSize: 12,
+        fontWeight: '800',
+        letterSpacing: 2,
+        marginTop: 8,
+      }}>
+        WELCOME BACK
+      </Text>
+      <Text style={{
+        color: colors.text,
+        fontSize: 30,
+        lineHeight: 38,
+        fontWeight: '800',
+        marginTop: 8,
+      }}>
+        Hello, {firstName}! 👋
+      </Text>
+      <Text style={{
+        color: colors.muted,
+        fontSize: 16,
+        lineHeight: 24,
+        marginTop: 6,
+        marginBottom: 24,
+      }}>
+        Keep your groundnut plants healthy, one leaf at a time.
+      </Text>
+
+      {/* Main action: the most important task for a farmer. */}
+      <View style={{
+        backgroundColor: colors.forest,
+        borderRadius: 27,
+        padding: 25,
+        marginBottom: 26,
+        overflow: 'hidden',
+      }}>
+        <View style={{
+          width: 180,
+          height: 180,
+          borderRadius: 90,
+          backgroundColor: '#24533F',
+          position: 'absolute',
+          right: -72,
+          top: -70,
+        }} />
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Ionicons name="leaf-outline" size={21} color={colors.lime} />
+          <Text style={{
+            color: colors.lime,
+            fontSize: 12,
+            fontWeight: '800',
+            marginLeft: 8,
+            letterSpacing: 1,
+          }}>
+            GROUNDNUT LEAF CHECK
+          </Text>
         </View>
-      </Pressable>
+        <Text style={{
+          color: colors.white,
+          fontSize: 30,
+          lineHeight: 38,
+          fontWeight: '800',
+          marginTop: 20,
+        }}>
+          See a problem?{'\n'}Check your leaf.
+        </Text>
+        <Text style={{
+          color: '#E0EDE2',
+          fontSize: 16,
+          lineHeight: 24,
+          marginTop: 13,
+        }}>
+          Take a clear photo of a groundnut leaf to check for disease.
+        </Text>
 
-      <Text style={{ color: colors.text, fontSize: 22, fontWeight: '800', marginBottom: 13 }}>How it works</Text>
-      {[
-        ['1', 'Take a clear photo', 'Choose one leaf with good light.'],
-        ['2', 'Check the result', 'See what the model identifies.'],
-        ['3', 'Read care advice', 'English and Urdu guidance will be available.'],
-      ].map(([number, title, description]) => (
-        <View key={number} style={{ flexDirection: 'row', padding: 16, borderRadius: 18, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.border, marginBottom: 10, alignItems: 'center' }}>
-          <View style={{ width: 40, height: 40, backgroundColor: colors.lightGreen, borderRadius: 12, alignItems: 'center', justifyContent: 'center', marginRight: 15 }}>
-            <Text style={{ color: colors.green, fontWeight: '800', fontSize: 18 }}>{number}</Text>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Take a leaf photo"
+          onPress={openScan}
+          style={({ pressed }) => ({
+            backgroundColor: colors.lime,
+            borderRadius: 17,
+            minHeight: 58,
+            marginTop: 24,
+            paddingHorizontal: 16,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            opacity: pressed ? 0.85 : 1,
+          })}
+        >
+          <Ionicons name="camera-outline" size={23} color={colors.forest} />
+          <Text style={{ color: colors.forest, fontSize: 17, fontWeight: '800', flex: 1, marginLeft: 12 }}>
+            Take a leaf photo
+          </Text>
+          <Ionicons name="arrow-forward" size={22} color={colors.forest} />
+        </Pressable>
+        <Text style={{ color: '#E0EDE2', marginTop: 11, fontSize: 14 }}>
+          پتے کی تصویر لیں
+        </Text>
+      </View>
+
+      {/* Actual recent leaf checks, like the approved demo. */}
+      <View style={{
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 12,
+      }}>
+        <View style={{ flexShrink: 1 }}>
+          <Text style={{ color: colors.text, fontSize: 22, fontWeight: '800' }}>
+            Recent leaf checks
+          </Text>
+          <Text style={{ color: colors.muted, fontSize: 13, marginTop: 2 }}>
+            پچھلی رپورٹس
+          </Text>
+        </View>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="See all past leaf checks"
+          onPress={() => navigation.navigate('History')}
+          style={{ paddingVertical: 12, paddingLeft: 12, flexDirection: 'row', alignItems: 'center' }}
+        >
+          <Text style={{ color: colors.green, fontSize: 15, fontWeight: '800' }}>View all</Text>
+          <Ionicons name="chevron-forward" size={18} color={colors.green} />
+        </Pressable>
+      </View>
+
+      {loadingScans ? (
+        <View style={{ paddingVertical: 26 }}><ActivityIndicator color={colors.green} /></View>
+      ) : scanError ? (
+        <View style={{ backgroundColor: colors.white, borderRadius: 18, padding: 18, marginBottom: 18 }}>
+          <Text style={{ color: colors.text, fontWeight: '700', fontSize: 16 }}>Reports could not load</Text>
+          <Text style={{ color: colors.muted, fontSize: 14, marginTop: 6 }}>Please try again.</Text>
+          <Pressable onPress={loadRecentScans} style={{ paddingVertical: 12 }} accessibilityRole="button">
+            <Text style={{ color: colors.green, fontWeight: '800' }}>Try again</Text>
+          </Pressable>
+        </View>
+      ) : recentScans.length > 0 ? (
+        <View style={{ marginBottom: 18 }}>
+          {recentScans.map((scan) => (
+            <RecentScanCard key={scan.id} scan={scan} onPress={() => openReport(scan)} />
+          ))}
+        </View>
+      ) : (
+        <View style={{
+          backgroundColor: colors.white,
+          borderColor: colors.border,
+          borderWidth: 1,
+          borderRadius: 20,
+          padding: 20,
+          marginBottom: 18,
+          flexDirection: 'row',
+          alignItems: 'center',
+        }}>
+          <View style={{ backgroundColor: colors.lightGreen, borderRadius: 14, padding: 12, marginRight: 13 }}>
+            <Ionicons name="document-text-outline" color={colors.green} size={25} />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ color: colors.text, fontWeight: '700', fontSize: 16 }}>{title}</Text>
-            <Text style={{ color: colors.muted, marginTop: 4, fontSize: 13 }}>{description}</Text>
+            <Text style={{ color: colors.text, fontSize: 17, fontWeight: '800' }}>No checks yet</Text>
+            <Text style={{ color: colors.muted, fontSize: 14, lineHeight: 21, marginTop: 4 }}>
+              Your leaf reports will appear here after you check a plant.
+            </Text>
           </View>
         </View>
-      ))}
-      <Text style={{ color: colors.muted, fontSize: 13, lineHeight: 21, marginTop: 15 }}>PlantPulse AI currently supports groundnut leaves only. A prediction is not a replacement for local agricultural advice.</Text>
+      )}
+
+      <Pressable
+        accessibilityRole="button"
+        onPress={() => navigation.navigate('Community')}
+        style={({ pressed }) => ({
+          flexDirection: 'row', alignItems: 'center', backgroundColor: colors.white,
+          borderColor: colors.border, borderWidth: 1, borderRadius: 19,
+          padding: 17, marginBottom: 6, opacity: pressed ? 0.8 : 1,
+        })}
+      >
+        <View style={{ backgroundColor: colors.lightGreen, borderRadius: 14, padding: 12 }}>
+          <Ionicons name="people-outline" size={24} color={colors.green} />
+        </View>
+        <View style={{ flex: 1, marginLeft: 12 }}>
+          <Text style={{ color: colors.text, fontSize: 17, fontWeight: '800' }}>Ask other farmers</Text>
+          <Text style={{ color: colors.muted, fontSize: 13 }}>دوسرے کسانوں سے پوچھیں</Text>
+        </View>
+        <Ionicons name="chevron-forward" size={20} color={colors.muted} />
+      </Pressable>
+
+      <View style={{
+        backgroundColor: colors.white,
+        borderColor: colors.border,
+        borderWidth: 1,
+        borderRadius: 20,
+        padding: 18,
+        marginTop: 24,
+      }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Ionicons name="sunny-outline" size={24} color={colors.warning} />
+          <Text style={{ color: colors.text, fontSize: 18, fontWeight: '800', marginLeft: 10 }}>
+            Helpful tip
+          </Text>
+        </View>
+        <Text style={{ color: colors.muted, fontSize: 15, lineHeight: 23, marginTop: 10 }}>
+          For a clearer leaf photo, use daylight and keep the whole leaf in view.
+        </Text>
+      </View>
+
+      <Text style={{
+        fontSize: 12,
+        color: colors.muted,
+        lineHeight: 19,
+        marginTop: 18,
+        marginBottom: 4,
+      }}>
+        PlantPulse AI is designed for groundnut leaves. If a plant looks seriously unwell, ask a local agriculture expert for advice.
+      </Text>
     </ScreenLayout>
   );
 }

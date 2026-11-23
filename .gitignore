@@ -30,3 +30,6 @@ datasets/
 .DS_Store
 Thumbs.db
 .vscode/
+
+# Temporary outputs
+visualization_outputs/

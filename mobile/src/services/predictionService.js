@@ -1,39 +1,127 @@
-import { supabase } from './supabaseClient';
 
-const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+import { File } from 'expo-file-system';
+import { fetch } from 'expo/fetch';
 
-// This is a REAL HTTP request. The /predict model endpoint is added next.
-// Never generate fake prediction results in the final app.
-export async function checkLeaf(imageUri) {
-  if (!apiUrl || apiUrl.includes('YOUR-LAPTOP-LAN-IP')) {
-    throw new Error('Plant checking is not connected yet. Set EXPO_PUBLIC_API_URL in mobile/.env.');
+const API_URL = (
+  process.env.EXPO_PUBLIC_API_URL || ''
+).replace(/\/+$/, '');
+
+export async function predictLeaf(photo) {
+  // Check if a photo is selected
+  if (!photo?.uri) {
+    throw new Error('Please choose a leaf photo first.');
   }
 
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.access_token) throw new Error('Your login expired. Please sign in again.');
+  // Check backend URL
+  if (!API_URL || API_URL.includes('YOUR-LAPTOP')) {
+    throw new Error(
+      'Plant checking is not connected. Please check the app settings.'
+    );
+  }
 
-  const form = new FormData();
-  form.append('file', {
-    uri: imageUri,
-    name: 'groundnut-leaf.jpg',
-    type: 'image/jpeg',
-  });
+  const mimeType = photo.mimeType || 'image/jpeg';
 
-  let response;
+  if (!['image/jpeg', 'image/png', 'image/webp'].includes(mimeType)) {
+    throw new Error(
+      'Please select a JPG, PNG or WebP photo.'
+    );
+  }
+
+  // Create a real file using Expo FileSystem
+  const imageFile = new File(photo.uri);
+
+  if (imageFile.size > 8 * 1024 * 1024) {
+    throw new Error(
+      'This photo is too large. Please choose a smaller one.'
+    );
+  }
+
+  // Prepare image upload for FastAPI
+  const formData = new FormData();
+
+  formData.append('file', imageFile);
+
+  const controller = new AbortController();
+
+  const timeout = setTimeout(() => {
+    controller.abort();
+  }, 120000);
+
   try {
-    response = await fetch(`${apiUrl.replace(/\/$/, '')}/predict`, {
+    const response = await fetch(`${API_URL}/predict`, {
       method: 'POST',
-      headers: { Authorization: `Bearer ${session.access_token}` },
-      body: form,
+      body: formData,
+      signal: controller.signal,
     });
-  } catch (_error) {
-    throw new Error('Cannot reach the plant-checking server. Check Wi-Fi and the API address.');
-  }
 
-  let data;
-  try { data = await response.json(); } catch (_error) { data = {}; }
-  if (!response.ok) {
-    throw new Error(data.detail || data.message || 'The server could not check this image.');
+    const data = await response.json().catch(() => null);
+
+    if (!response.ok) {
+      console.error('FastAPI response:', response.status, data);
+
+      if (response.status === 413) {
+        throw new Error(
+          'This photo is too large. Please choose a smaller one.'
+        );
+      }
+
+      if (response.status === 415) {
+        throw new Error(
+          'This photo format is not supported. Please use JPG or PNG.'
+        );
+      }
+
+      if (response.status === 503) {
+        throw new Error(
+          'Plant checking is temporarily unavailable.'
+        );
+      }
+
+      throw new Error(
+        'We could not check this photo. Please try again.'
+      );
+    }
+
+    if (
+      !data ||
+      !['healthy', 'diseased', 'uncertain'].includes(data.status)
+    ) {
+      throw new Error(
+        'We could not read the plant result. Please try again.'
+      );
+    }
+
+    return data;
+
+  } catch (error) {
+    console.error('Prediction request:', error);
+
+    if (error.name === 'AbortError') {
+      throw new Error(
+        'The check took too long. Please try again.'
+      );
+    }
+
+    if (
+      error instanceof TypeError ||
+      error.message?.includes('Network request failed')
+    ) {
+      throw new Error(
+        'Cannot connect to plant checking. Check your Wi-Fi.'
+      );
+    }
+
+    if (
+      error.message?.includes('FormDataPart')
+    ) {
+      throw new Error(
+        'Could not prepare the leaf photo. Please try again.'
+      );
+    }
+
+    throw error;
+
+  } finally {
+    clearTimeout(timeout);
   }
-  return data;
 }
