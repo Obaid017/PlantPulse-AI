@@ -163,7 +163,6 @@ async function checkPlant() {
             </View>
           ) : (
             <View style={styles.placeholder}>
-              <Text style={styles.placeholderIcon}>🌿</Text>
               <Text style={styles.placeholderTitle}>
                 Your leaf photo will appear here
               </Text>
@@ -180,7 +179,7 @@ async function checkPlant() {
             accessibilityRole="button"
           >
             <Text style={styles.photoButtonText}>
-              📷  Take Photo
+              Take Photo
             </Text>
           </Pressable>
 
@@ -274,10 +273,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     marginBottom: 18,
-  },
-  placeholderIcon: {
-    fontSize: 46,
-    marginBottom: 12,
   },
   placeholderTitle: {
     color: GREEN,
