@@ -7,7 +7,6 @@ import {
   View,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { Ionicons } from '@expo/vector-icons';
 
 import ScreenLayout from '../components/ScreenLayout';
 import RecentScanCard from '../components/RecentScanCard';
@@ -148,13 +147,7 @@ export default function HistoryScreen({ navigation }) {
             alignItems: 'center',
           }}
         >
-          <Ionicons
-            name="document-text-outline"
-            size={44}
-            color={colors.green}
-          />
-
-          <Text
+<Text
             style={{
               color: colors.text,
               fontSize: 20,
