@@ -1,6 +1,6 @@
 
 import React from 'react';
-import DiseaseCareGuide from '../components/DiseaseCareGuide';
+import { Ionicons } from '@expo/vector-icons';
 import {
   Image,
   Pressable,
@@ -32,6 +32,8 @@ export default function DiagnosisResultScreen({
   prediction,
   photoUri,
   onCheckAnother,
+  onViewTreatment,
+  onShareCommunity,
 }) {
   const healthy = prediction.status === 'healthy';
   const uncertain = prediction.status === 'uncertain';
@@ -120,11 +122,18 @@ export default function DiagnosisResultScreen({
         </>
       )}
 
-      <DiseaseCareGuide
-        diseaseName={prediction.disease_name}
-        status={prediction.status}
-        severityLevel={prediction.severity_level}
-      />
+      <View style={styles.actionGroup}>
+        <Pressable style={styles.treatmentButton} onPress={onViewTreatment} accessibilityRole="button">
+          <Ionicons name="medkit-outline" size={22} color={GREEN} />
+          <Text style={styles.treatmentText}>{healthy ? 'View Care & Prevention' : 'View Treatment & Recommendations'}</Text>
+          <Ionicons name="chevron-forward" size={22} color={GREEN} />
+        </Pressable>
+        <Pressable style={styles.shareButton} onPress={onShareCommunity} accessibilityRole="button">
+          <Ionicons name="people-outline" size={22} color={GREEN} />
+          <Text style={styles.shareText}>Share to Community</Text>
+          <Ionicons name="chevron-forward" size={22} color={GREEN} />
+        </Pressable>
+      </View>
 
       <Pressable
         style={styles.button}
@@ -232,6 +241,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#000000',
     borderRadius: 12,
   },
+  actionGroup: { marginTop: 10, marginBottom: 16, gap: 12 },
+  treatmentButton: { flexDirection: 'row', gap: 10, alignItems: 'center', backgroundColor: '#E5F0A5', padding: 16, borderRadius: 17, minHeight: 60 },
+  treatmentText: { flex: 1, fontSize: 16, fontWeight: '800', color: GREEN },
+  shareButton: { flexDirection: 'row', gap: 10, alignItems: 'center', backgroundColor: '#FFFFFF', borderColor: '#DDE6D8', borderWidth: 1, borderRadius: 17, padding: 16, minHeight: 60 },
+  shareText: { flex: 1, fontSize: 16, fontWeight: '700', color: GREEN },
   button: {
     backgroundColor: '#E5F0A5',
     borderRadius: 18,
