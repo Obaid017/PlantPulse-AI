@@ -12,7 +12,6 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { getSavedScanDetail } from '../services/scanSaveService';
-import DiseaseCareGuide from '../components/DiseaseCareGuide';
 
 const GREEN = '#203D2F';
 const MUTED = '#687C70';
@@ -194,11 +193,20 @@ export default function SavedScanDetailScreen({
               </>
             )}
 
-            <DiseaseCareGuide
-              diseaseName={report.disease_name}
-              status={report.status}
-              severityLevel={report.severity_level}
-            />
+            <View style={styles.actionGroup}>
+              <Pressable style={styles.careButton} accessibilityRole="button" onPress={() => navigation.navigate('Treatment', {
+                diseaseName: report.disease_name,
+                status: report.status,
+                severityLevel: report.severity_level,
+                severityPercent: report.severity_percent,
+                scanId: report.id,
+              })}>
+                <Text style={styles.careButtonText}>{healthy ? 'View Care & Prevention' : 'View Treatment & Recommendations'}</Text>
+              </Pressable>
+              <Pressable style={styles.communityButton} accessibilityRole="button" onPress={() => navigation.navigate('CommunityDraft', { scanId: report.id })}>
+                <Text style={styles.communityButtonText}>Share to Community</Text>
+              </Pressable>
+            </View>
 
             <Text style={styles.note}>
               This is an automated estimate. For treatment
@@ -307,6 +315,11 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     marginTop: 16,
   },
+  actionGroup: { gap: 12, marginTop: 22 },
+  careButton: { backgroundColor: '#E5F0A5', padding: 18, borderRadius: 18, minHeight: 55, alignItems: 'center' },
+  careButtonText: { color: GREEN, fontWeight: '800', fontSize: 16 },
+  communityButton: { backgroundColor: '#FFFFFF', borderColor: '#DDE6D8', borderWidth: 1, padding: 16, borderRadius: 18, minHeight: 55, alignItems: 'center' },
+  communityButtonText: { color: GREEN, fontWeight: '700', fontSize: 16 },
   button: {
     backgroundColor: GREEN,
     padding: 18,

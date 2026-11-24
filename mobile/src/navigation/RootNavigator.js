@@ -36,6 +36,8 @@ import ProfileScreen from '../screens/ProfileScreen';
 // Result screens
 import ResultScreen from '../screens/ResultScreen';
 import SavedScanDetailScreen from '../screens/SavedScanDetailScreen';
+import TreatmentScreen from '../screens/TreatmentScreen';
+import CommunityDraftScreen from '../screens/CommunityDraftScreen';
 
 const Stack = createNativeStackNavigator();
 const Tabs = createBottomTabNavigator();
@@ -165,6 +167,16 @@ export default function RootNavigator() {
           <Stack.Screen
             name="SavedScanDetail"
             component={SavedScanDetailScreen}
+          />
+
+          <Stack.Screen
+            name="Treatment"
+            component={TreatmentScreen}
+          />
+
+          <Stack.Screen
+            name="CommunityDraft"
+            component={CommunityDraftScreen}
           />
         </>
       ) : (
