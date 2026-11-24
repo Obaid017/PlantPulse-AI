@@ -147,7 +147,7 @@ export default function HistoryScreen({ navigation }) {
             alignItems: 'center',
           }}
         >
-<Text
+          <Text
             style={{
               color: colors.text,
               fontSize: 20,
