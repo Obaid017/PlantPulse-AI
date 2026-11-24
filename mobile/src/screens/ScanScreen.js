@@ -18,7 +18,7 @@ import { predictLeaf } from '../services/predictionService';
 const GREEN = '#183D2B';
 const MUTED = '#64756B';
 
-export default function ScanScreen() {
+export default function ScanScreen({ navigation }) {
   const [photo, setPhoto] = useState(null);
   const [prediction, setPrediction] = useState(null);
   const [checking, setChecking] = useState(false);
@@ -121,6 +121,18 @@ async function checkPlant() {
           prediction={prediction}
           photoUri={photo.uri}
           onCheckAnother={checkAnotherLeaf}
+          onViewTreatment={() => navigation.getParent()?.navigate('Treatment', {
+            diseaseName: prediction.disease_name,
+            status: prediction.status,
+            severityLevel: prediction.severity_level,
+            severityPercent: prediction.severity_percent,
+          })}
+          onShareCommunity={() => navigation.getParent()?.navigate('CommunityDraft', {
+            diseaseName: prediction.disease_name,
+            status: prediction.status,
+            severityPercent: prediction.severity_percent,
+            imageUri: photo.uri,
+          })}
         />
       ) : (
         <View style={styles.container}>
