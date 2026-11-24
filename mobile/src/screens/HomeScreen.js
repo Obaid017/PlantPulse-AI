@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { Ionicons } from '@expo/vector-icons';
 import ScreenLayout from '../components/ScreenLayout';
 import Brand from '../components/Brand';
 import RecentScanCard from '../components/RecentScanCard';
@@ -68,7 +67,7 @@ export default function HomeScreen({ navigation }) {
         fontWeight: '800',
         marginTop: 8,
       }}>
-        Hello, {firstName}! 👋
+        Hello, {firstName}!
       </Text>
       <Text style={{
         color: colors.muted,
@@ -98,12 +97,10 @@ export default function HomeScreen({ navigation }) {
           top: -70,
         }} />
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Ionicons name="leaf-outline" size={21} color={colors.lime} />
           <Text style={{
             color: colors.lime,
             fontSize: 12,
             fontWeight: '800',
-            marginLeft: 8,
             letterSpacing: 1,
           }}>
             GROUNDNUT LEAF CHECK
@@ -143,11 +140,9 @@ export default function HomeScreen({ navigation }) {
             opacity: pressed ? 0.85 : 1,
           })}
         >
-          <Ionicons name="camera-outline" size={23} color={colors.forest} />
-          <Text style={{ color: colors.forest, fontSize: 17, fontWeight: '800', flex: 1, marginLeft: 12 }}>
+          <Text style={{ color: colors.forest, fontSize: 17, fontWeight: '800', flex: 1 }}>
             Take a leaf photo
           </Text>
-          <Ionicons name="arrow-forward" size={22} color={colors.forest} />
         </Pressable>
         <Text style={{ color: '#E0EDE2', marginTop: 11, fontSize: 14 }}>
           پتے کی تصویر لیں
@@ -176,7 +171,6 @@ export default function HomeScreen({ navigation }) {
           style={{ paddingVertical: 12, paddingLeft: 12, flexDirection: 'row', alignItems: 'center' }}
         >
           <Text style={{ color: colors.green, fontSize: 15, fontWeight: '800' }}>View all</Text>
-          <Ionicons name="chevron-forward" size={18} color={colors.green} />
         </Pressable>
       </View>
 
@@ -207,9 +201,6 @@ export default function HomeScreen({ navigation }) {
           flexDirection: 'row',
           alignItems: 'center',
         }}>
-          <View style={{ backgroundColor: colors.lightGreen, borderRadius: 14, padding: 12, marginRight: 13 }}>
-            <Ionicons name="document-text-outline" color={colors.green} size={25} />
-          </View>
           <View style={{ flex: 1 }}>
             <Text style={{ color: colors.text, fontSize: 17, fontWeight: '800' }}>No checks yet</Text>
             <Text style={{ color: colors.muted, fontSize: 14, lineHeight: 21, marginTop: 4 }}>
@@ -228,14 +219,10 @@ export default function HomeScreen({ navigation }) {
           padding: 17, marginBottom: 6, opacity: pressed ? 0.8 : 1,
         })}
       >
-        <View style={{ backgroundColor: colors.lightGreen, borderRadius: 14, padding: 12 }}>
-          <Ionicons name="people-outline" size={24} color={colors.green} />
-        </View>
-        <View style={{ flex: 1, marginLeft: 12 }}>
+        <View style={{ flex: 1 }}>
           <Text style={{ color: colors.text, fontSize: 17, fontWeight: '800' }}>Ask other farmers</Text>
           <Text style={{ color: colors.muted, fontSize: 13 }}>دوسرے کسانوں سے پوچھیں</Text>
         </View>
-        <Ionicons name="chevron-forward" size={20} color={colors.muted} />
       </Pressable>
 
       <View style={{
@@ -247,8 +234,7 @@ export default function HomeScreen({ navigation }) {
         marginTop: 24,
       }}>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Ionicons name="sunny-outline" size={24} color={colors.warning} />
-          <Text style={{ color: colors.text, fontSize: 18, fontWeight: '800', marginLeft: 10 }}>
+          <Text style={{ color: colors.text, fontSize: 18, fontWeight: '800' }}>
             Helpful tip
           </Text>
         </View>
