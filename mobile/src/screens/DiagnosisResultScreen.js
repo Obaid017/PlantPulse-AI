@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { Ionicons } from '@expo/vector-icons';
 import {
   Image,
   Pressable,
@@ -124,14 +123,10 @@ export default function DiagnosisResultScreen({
 
       <View style={styles.actionGroup}>
         <Pressable style={styles.treatmentButton} onPress={onViewTreatment} accessibilityRole="button">
-          <Ionicons name="medkit-outline" size={22} color={GREEN} />
           <Text style={styles.treatmentText}>{healthy ? 'View Care & Prevention' : 'View Treatment & Recommendations'}</Text>
-          <Ionicons name="chevron-forward" size={22} color={GREEN} />
         </Pressable>
         <Pressable style={styles.shareButton} onPress={onShareCommunity} accessibilityRole="button">
-          <Ionicons name="people-outline" size={22} color={GREEN} />
           <Text style={styles.shareText}>Share to Community</Text>
-          <Ionicons name="chevron-forward" size={22} color={GREEN} />
         </Pressable>
       </View>
 
@@ -242,10 +237,10 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   actionGroup: { marginTop: 10, marginBottom: 16, gap: 12 },
-  treatmentButton: { flexDirection: 'row', gap: 10, alignItems: 'center', backgroundColor: '#E5F0A5', padding: 16, borderRadius: 17, minHeight: 60 },
-  treatmentText: { flex: 1, fontSize: 16, fontWeight: '800', color: GREEN },
-  shareButton: { flexDirection: 'row', gap: 10, alignItems: 'center', backgroundColor: '#FFFFFF', borderColor: '#DDE6D8', borderWidth: 1, borderRadius: 17, padding: 16, minHeight: 60 },
-  shareText: { flex: 1, fontSize: 16, fontWeight: '700', color: GREEN },
+  treatmentButton: { alignItems: 'center', justifyContent: 'center', backgroundColor: '#E5F0A5', padding: 16, borderRadius: 17, minHeight: 60 },
+  treatmentText: { fontSize: 16, fontWeight: '800', color: GREEN, textAlign: 'center' },
+  shareButton: { alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFFFFF', borderColor: '#DDE6D8', borderWidth: 1, borderRadius: 17, padding: 16, minHeight: 60 },
+  shareText: { fontSize: 16, fontWeight: '700', color: GREEN, textAlign: 'center' },
   button: {
     backgroundColor: '#E5F0A5',
     borderRadius: 18,
