@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 
 import ScreenLayout from '../components/ScreenLayout';
 import colors from '../constants/colors';
@@ -14,13 +13,10 @@ const languageOptions = [
   { value: 'ur', label: 'اردو' },
 ];
 
-function CareCard({ title, icon, children }) {
+function CareCard({ title, children }) {
   return (
     <View style={styles.card}>
-      <View style={styles.titleRow}>
-        <Ionicons name={icon} color={colors.green} size={23} />
-        <Text style={styles.cardTitle}>{title}</Text>
-      </View>
+      <Text style={styles.cardTitle}>{title}</Text>
       {children}
     </View>
   );
@@ -111,7 +107,6 @@ export default function TreatmentScreen({ navigation, route }) {
   return (
     <ScreenLayout>
       <Pressable accessibilityRole="button" onPress={() => navigation.goBack()} style={styles.back}>
-        <Ionicons name="arrow-back" size={22} color={colors.green} />
         <Text style={styles.backText}>{translated('Back to report', 'رپورٹ پر واپس')}</Text>
       </Pressable>
       <Text style={styles.heading}>{translated('Treatment & Plant Care', 'علاج اور فصل کی دیکھ بھال')}</Text>
@@ -146,19 +141,19 @@ export default function TreatmentScreen({ navigation, route }) {
       </View>
 
       {uncertain ? (
-        <CareCard title={translated('What to do first', 'پہلا قدم')} icon="camera-outline">
+        <CareCard title={translated('What to do first', 'پہلا قدم')}>
           <RuleText>{translated(
             'Please take another clear photo in daylight. Do not select medicine from an uncertain prediction. If plants are worsening, contact an agriculture officer.',
             'دن کی روشنی میں صاف تصویر دوبارہ لیں۔ غیر یقینی نتیجے سے دوا نہ چنیں۔ فصل خراب ہو رہی ہو تو زرعی ماہر سے رابطہ کریں۔'
           )}</RuleText>
         </CareCard>
       ) : !care ? (
-        <CareCard title={translated('Care advice is not ready', 'مشورہ دستیاب نہیں')} icon="alert-circle-outline">
+        <CareCard title={translated('Care advice is not ready', 'مشورہ دستیاب نہیں')}>
           <RuleText>{translated('This disease needs expert confirmation before treatment.', 'علاج سے پہلے زرعی ماہر سے بیماری کی تصدیق کروائیں۔')}</RuleText>
         </CareCard>
       ) : (
         <>
-          <CareCard title={translated('1. What to do today', '۱۔ آج کیا کریں؟')} icon="checkmark-circle-outline">
+          <CareCard title={translated('1. What to do today', '۱۔ آج کیا کریں؟')}>
             <RuleText>{textOf(rule?.action) || textOf(care.now)}</RuleText>
             {!healthy && <Text style={styles.helper}>
               {translated(
@@ -169,7 +164,7 @@ export default function TreatmentScreen({ navigation, route }) {
           </CareCard>
 
           {!healthy && (
-            <CareCard title={translated('2. Tell us about your field', '۲۔ کھیت کے بارے میں بتائیں')} icon="help-circle-outline">
+            <CareCard title={translated('2. Tell us about your field', '۲۔ کھیت کے بارے میں بتائیں')}>
               <Text style={styles.helper}>
                 {translated('Three quick answers help us prioritize early action.', 'تین آسان جواب بروقت احتیاط کا مشورہ بہتر بناتے ہیں۔')}
               </Text>
@@ -204,20 +199,20 @@ export default function TreatmentScreen({ navigation, route }) {
             </CareCard>
           )}
 
-          <CareCard title={translated('3. Why it happens', '۳۔ بیماری کیوں ہوتی ہے؟')} icon="leaf-outline">
+          <CareCard title={translated('3. Why it happens', '۳۔ بیماری کیوں ہوتی ہے؟')}>
             <RuleText>{textOf(care.cause)}</RuleText>
           </CareCard>
 
-          <CareCard title={translated('4. Signs to look for', '۴۔ بیماری کی پہچان')} icon="eye-outline">
+          <CareCard title={translated('4. Signs to look for', '۴۔ بیماری کی پہچان')}>
             <RuleText>{textOf(care.signs)}</RuleText>
           </CareCard>
 
-          <CareCard title={translated('5. How to prevent spread', '۵۔ پھیلاؤ کیسے روکیں؟')} icon="shield-checkmark-outline">
+          <CareCard title={translated('5. How to prevent spread', '۵۔ پھیلاؤ کیسے روکیں؟')}>
             <RuleText>{textOf(care.prevent)}</RuleText>
             <Text style={styles.helper}>{textOf(care.spread)}</Text>
           </CareCard>
 
-          <CareCard title={translated('6. Medicine & spray', '۶۔ دوا اور سپرے')} icon="medkit-outline">
+          <CareCard title={translated('6. Medicine & spray', '۶۔ دوا اور سپرے')}>
             {healthy ? (
               <RuleText>{textOf(care.medicine)}</RuleText>
             ) : medicines.length ? (
@@ -238,7 +233,6 @@ export default function TreatmentScreen({ navigation, route }) {
                       onPress={() => Linking.openURL(item.source)}
                       style={styles.source}
                     >
-                      <Ionicons name="book-outline" color={colors.green} size={16} />
                       <Text style={styles.sourceText}>{translated('Product / research source', 'دوا یا تحقیق کا حوالہ')}</Text>
                     </Pressable>
                   </View>
@@ -253,7 +247,7 @@ export default function TreatmentScreen({ navigation, route }) {
             <Text style={styles.safety}>{textOf(generalSpraySafety)}</Text>
           </CareCard>
 
-          <CareCard title={translated('7. When to check again', '۷۔ دوبارہ کب دیکھیں؟')} icon="calendar-outline">
+          <CareCard title={translated('7. When to check again', '۷۔ دوبارہ کب دیکھیں؟')}>
             <RuleText>{textOf(rule?.followUp) || textOf(care.followUp)}</RuleText>
             <Text style={styles.helper}>{textOf(care.whenToAsk)}</Text>
           </CareCard>
@@ -270,7 +264,7 @@ export default function TreatmentScreen({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
-  back: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 7, marginBottom: 10 },
+  back: { paddingVertical: 9, marginBottom: 12, alignSelf: 'flex-start' },
   backText: { color: colors.green, fontSize: 16, fontWeight: '700' },
   heading: { color: colors.text, fontSize: 27, fontWeight: '800', lineHeight: 35 },
   subheading: { color: colors.muted, fontSize: 15, marginTop: 7, marginBottom: 14, lineHeight: 23 },
@@ -284,8 +278,7 @@ const styles = StyleSheet.create({
   summaryName: { color: colors.text, fontSize: 21, fontWeight: '800', marginTop: 5 },
   summarySeverity: { color: colors.muted, marginTop: 7, fontSize: 15 },
   card: { padding: 18, backgroundColor: colors.white, borderRadius: 20, marginBottom: 13 },
-  titleRow: { flexDirection: 'row', alignItems: 'center', gap: 9, marginBottom: 10 },
-  cardTitle: { color: colors.text, fontSize: 18, fontWeight: '800', flex: 1 },
+  cardTitle: { color: colors.text, fontSize: 18, fontWeight: '800', marginBottom: 10, lineHeight: 26 },
   body: { color: colors.muted, fontSize: 15, lineHeight: 24, marginTop: 4 },
   helper: { color: colors.muted, fontSize: 13, lineHeight: 21, marginTop: 8 },
   question: { marginTop: 15 },
@@ -304,7 +297,7 @@ const styles = StyleSheet.create({
   verification: { fontSize: 13, fontWeight: '700', lineHeight: 21, marginTop: 9 },
   listed: { color: colors.green },
   unverified: { color: colors.red },
-  source: { flexDirection: 'row', gap: 8, alignItems: 'center', minHeight: 44, marginTop: 7 },
+  source: { minHeight: 44, justifyContent: 'center', marginTop: 7 },
   sourceText: { color: colors.green, fontSize: 14, fontWeight: '700' },
   safety: { color: colors.muted, fontSize: 13, lineHeight: 21, marginTop: 15, padding: 12, backgroundColor: colors.background, borderRadius: 12 },
   footer: { color: colors.muted, fontSize: 12, lineHeight: 20, textAlign: 'center', marginTop: 10, marginBottom: 25 },
