@@ -1,5 +1,6 @@
 
 import React from 'react';
+import DiseaseCareGuide from '../components/DiseaseCareGuide';
 import {
   Image,
   Pressable,
@@ -118,6 +119,12 @@ export default function DiagnosisResultScreen({
           />
         </>
       )}
+
+      <DiseaseCareGuide
+        diseaseName={prediction.disease_name}
+        status={prediction.status}
+        severityLevel={prediction.severity_level}
+      />
 
       <Pressable
         style={styles.button}

@@ -12,6 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { getSavedScanDetail } from '../services/scanSaveService';
+import DiseaseCareGuide from '../components/DiseaseCareGuide';
 
 const GREEN = '#203D2F';
 const MUTED = '#687C70';
@@ -192,6 +193,12 @@ export default function SavedScanDetailScreen({
                 />
               </>
             )}
+
+            <DiseaseCareGuide
+              diseaseName={report.disease_name}
+              status={report.status}
+              severityLevel={report.severity_level}
+            />
 
             <Text style={styles.note}>
               This is an automated estimate. For treatment
