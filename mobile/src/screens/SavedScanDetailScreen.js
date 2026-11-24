@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Image,
   Pressable,
   ScrollView,
@@ -203,7 +204,11 @@ export default function SavedScanDetailScreen({
               })}>
                 <Text style={styles.careButtonText}>{healthy ? 'View Care & Prevention' : 'View Treatment & Recommendations'}</Text>
               </Pressable>
-              <Pressable style={styles.communityButton} accessibilityRole="button" onPress={() => navigation.navigate('CommunityDraft', { scanId: report.id })}>
+              <Pressable style={styles.communityButton} accessibilityRole="button" onPress={() => Alert.alert(
+                'Community Coming Soon',
+                'You will be able to share leaf photos and ask other farmers for help when the Community Hub is ready. Nothing has been shared.',
+                [{ text: 'OK' }]
+              )}>
                 <Text style={styles.communityButtonText}>Share to Community</Text>
               </Pressable>
             </View>
