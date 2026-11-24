@@ -208,12 +208,16 @@ export default function TreatmentScreen({ navigation, route }) {
             <RuleText>{textOf(care.cause)}</RuleText>
           </CareCard>
 
-          <CareCard title={translated('4. How to prevent spread', '۴۔ پھیلاؤ کیسے روکیں؟')} icon="shield-checkmark-outline">
+          <CareCard title={translated('4. Signs to look for', '۴۔ بیماری کی پہچان')} icon="eye-outline">
+            <RuleText>{textOf(care.signs)}</RuleText>
+          </CareCard>
+
+          <CareCard title={translated('5. How to prevent spread', '۵۔ پھیلاؤ کیسے روکیں؟')} icon="shield-checkmark-outline">
             <RuleText>{textOf(care.prevent)}</RuleText>
             <Text style={styles.helper}>{textOf(care.spread)}</Text>
           </CareCard>
 
-          <CareCard title={translated('5. Medicine & spray', '۵۔ دوا اور سپرے')} icon="medkit-outline">
+          <CareCard title={translated('6. Medicine & spray', '۶۔ دوا اور سپرے')} icon="medkit-outline">
             {healthy ? (
               <RuleText>{textOf(care.medicine)}</RuleText>
             ) : medicines.length ? (
@@ -249,7 +253,7 @@ export default function TreatmentScreen({ navigation, route }) {
             <Text style={styles.safety}>{textOf(generalSpraySafety)}</Text>
           </CareCard>
 
-          <CareCard title={translated('6. When to check again', '۶۔ دوبارہ کب دیکھیں؟')} icon="calendar-outline">
+          <CareCard title={translated('7. When to check again', '۷۔ دوبارہ کب دیکھیں؟')} icon="calendar-outline">
             <RuleText>{textOf(rule?.followUp) || textOf(care.followUp)}</RuleText>
             <Text style={styles.helper}>{textOf(care.whenToAsk)}</Text>
           </CareCard>
