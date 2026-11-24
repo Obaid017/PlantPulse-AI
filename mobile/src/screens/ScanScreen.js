@@ -127,12 +127,11 @@ async function checkPlant() {
             severityLevel: prediction.severity_level,
             severityPercent: prediction.severity_percent,
           })}
-          onShareCommunity={() => navigation.getParent()?.navigate('CommunityDraft', {
-            diseaseName: prediction.disease_name,
-            status: prediction.status,
-            severityPercent: prediction.severity_percent,
-            imageUri: photo.uri,
-          })}
+          onShareCommunity={() => Alert.alert(
+            'Community Coming Soon',
+            'You will be able to share leaf photos and ask other farmers for help when the Community Hub is ready. Nothing has been shared.',
+            [{ text: 'OK' }]
+          )}
         />
       ) : (
         <View style={styles.container}>
