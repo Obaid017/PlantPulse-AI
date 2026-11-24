@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -7,6 +7,7 @@ import colors from '../constants/colors';
 import { getDiseaseCare } from '../data/diseaseCare';
 import { getMedicineCandidates, generalSpraySafety } from '../data/medicineCatalog';
 import { evaluateFieldRisk, getSeverityRule } from '../data/severityRules';
+import { fetchTreatmentCatalog } from '../services/recommendationService';
 
 const languageOptions = [
   { value: 'en', label: 'English' },
@@ -65,11 +66,27 @@ export default function TreatmentScreen({ navigation, route }) {
   const [wetWeather, setWetWeather] = useState('unknown');
   const [previousSpray, setPreviousSpray] = useState('unknown');
 
+  const [catalog, setCatalog] = useState(null);
+
+  useEffect(() => {
+    let mounted = true;
+    setCatalog(null);
+    fetchTreatmentCatalog(status === 'healthy' ? 'healthy' : diseaseName, severityLevel)
+      .then(data => { if (mounted) setCatalog(data); })
+      .catch(error => console.warn('Using built-in care guide:', error.message));
+    return () => { mounted = false; };
+  }, [diseaseName, severityLevel, status]);
+
   const healthy = status === 'healthy';
   const uncertain = status === 'uncertain' || status === 'low_confidence';
-  const care = getDiseaseCare(healthy ? 'healthy' : diseaseName);
-  const rule = getSeverityRule(diseaseName, severityLevel);
-  const medicines = getMedicineCandidates(diseaseName);
+  const localCare = getDiseaseCare(healthy ? 'healthy' : diseaseName);
+  const care = localCare && catalog?.disease
+    ? { ...localCare, ...catalog.disease }
+    : localCare;
+  const rule = catalog?.rule || getSeverityRule(diseaseName, severityLevel);
+  const medicines = catalog?.medicines?.length
+    ? catalog.medicines
+    : getMedicineCandidates(diseaseName);
 
   const risk = useMemo(
     () => evaluateFieldRisk({ spread, wetWeather, previousSpray }, diseaseName, severityLevel),
