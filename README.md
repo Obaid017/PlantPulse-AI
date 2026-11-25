@@ -18,7 +18,7 @@ The main goal is **early identification and timely crop care**, helping farmers 
 | React Native mobile screens and navigation | Implemented |
 | Camera and gallery photo selection | Implemented |
 | Automatic photo resizing / JPEG preparation | Implemented; further device testing ongoing |
-| FastAPI \`POST /predict\` with YOLO11m-Seg | Implemented; runs locally on laptop |
+| FastAPI `POST /predict` with YOLO11m-Seg | Implemented; runs locally on laptop |
 | Five groundnut classification classes | Implemented |
 | Prediction confidence and uncertainty handling | Implemented; validation still needed |
 | OpenCV affected-area percentage and four severity levels | Implemented; estimates are not ground-truth lesion measurements |
@@ -76,19 +76,19 @@ When a result is uncertain, the app asks for another groundnut-leaf photo and do
 | Mobile application | React Native, Expo SDK 58, JavaScript |
 | Navigation and UI | React Navigation, React Native, Expo Vector Icons |
 | Backend API | Python, FastAPI, Uvicorn |
-| Disease prediction | Ultralytics YOLO11m-Seg (\`best.pt\`) |
+| Disease prediction | Ultralytics YOLO11m-Seg (`best.pt`) |
 | Image processing | OpenCV, NumPy, Pillow |
 | Mobile image preparation | Expo Image Picker and Expo Image Manipulator |
 | Authentication | Supabase Auth |
 | Database | Supabase PostgreSQL with Row Level Security (RLS) |
-| Image storage | Private Supabase Storage bucket (\`plant-scans\`) |
+| Image storage | Private Supabase Storage bucket (`plant-scans`) |
 | Source control | Git and GitHub |
 
-**Current architecture:** Expo app → local FastAPI/\`/predict\` for ML inference; Expo app → Supabase for authentication, saved reports, image storage and recommendation data. The backend is **not** a public production service yet.
+**Current architecture:** Expo app → local FastAPI/`/predict` for ML inference; Expo app → Supabase for authentication, saved reports, image storage and recommendation data. The backend is **not** a public production service yet.
 
 ## Repository layout
 
-\`\`\`text
+```text
 PlantPulse-AI/
 ├── mobile/
 │   ├── App.js
@@ -132,9 +132,9 @@ PlantPulse-AI/
 ├── docs/
 ├── .gitignore
 └── README.md
-\`\`\`
+```
 
-The repository does **not** contain model weights, uploaded datasets, \`.env\` credentials, the Python virtual environment or installed \`node_modules\`.
+The repository does **not** contain model weights, uploaded datasets, `.env` credentials, the Python virtual environment or installed `node_modules`.
 
 ## Run locally on Windows
 
@@ -151,41 +151,41 @@ Use separate terminals for Expo and FastAPI.
 
 ### 2. Supabase and mobile environment
 
-From the project root, copy \`mobile/.env.example\` to \`mobile/.env\` and fill in:
+From the project root, copy `mobile/.env.example` to `mobile/.env` and fill in:
 
-\`\`\`env
+```env
 EXPO_PUBLIC_SUPABASE_URL=https://YOUR-PROJECT.supabase.co
 EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=YOUR-PUBLISHABLE-KEY
 EXPO_PUBLIC_API_URL=http://YOUR-LAPTOP-WIFI-IP:8000
-\`\`\`
+```
 
-Use the **publishable key only** in the mobile app. Never put Supabase secret/service-role credentials into \`EXPO_PUBLIC_\` values.
+Use the **publishable key only** in the mobile app. Never put Supabase secret/service-role credentials into `EXPO_PUBLIC_` values.
 
 Find the current laptop Wi-Fi IPv4 address with:
 
-\`\`\`powershell
+```powershell
 ipconfig
-\`\`\`
+```
 
-Use the IPv4 address under the **active Wi-Fi adapter**, not VMware, WSL or disconnected adapters. A laptop's local IP may change after reconnecting or switching networks. Do not use \`127.0.0.1\` or \`localhost\` as the API host on a physical phone.
+Use the IPv4 address under the **active Wi-Fi adapter**, not VMware, WSL or disconnected adapters. A laptop's local IP may change after reconnecting or switching networks. Do not use `127.0.0.1` or `localhost` as the API host on a physical phone.
 
 ### 3. Set up the database and storage
 
 In Supabase **SQL Editor**, paste and execute the actual SQL contents (not the filename) of:
 
-1. \`database/migrations/20261124_create_scan_history.sql\`
-2. \`database/migrations/20261124_create_recommendation_catalog.sql\`
+1. `database/migrations/20261124_create_scan_history.sql`
+2. `database/migrations/20261124_create_recommendation_catalog.sql`
 
-For scan-image saving, ensure \`public.scan_history\` also has these fields (the original history migration does **not** create them):
+For scan-image saving, ensure `public.scan_history` also has these fields (the original history migration does **not** create them):
 
-\`\`\`sql
+```sql
 ALTER TABLE public.scan_history
   ADD COLUMN IF NOT EXISTS original_image_path TEXT,
   ADD COLUMN IF NOT EXISTS affected_overlay_path TEXT,
   ADD COLUMN IF NOT EXISTS heatmap_path TEXT;
-\`\`\`
+```
 
-Create a **private** Supabase Storage bucket named \`plant-scans\`. Configure appropriate Storage policies for authenticated uploads, reads and cleanup scoped to each user's own folder. The mobile code stores objects under \`<user-id>/<scan-id-folder>/...\` and retrieves temporary signed URLs. The application has previously been configured manually in Supabase; a fresh project still needs those bucket policies.
+Create a **private** Supabase Storage bucket named `plant-scans`. Configure appropriate Storage policies for authenticated uploads, reads and cleanup scoped to each user's own folder. The mobile code stores objects under `<user-id>/<scan-id-folder>/...` and retrieves temporary signed URLs. The application has previously been configured manually in Supabase; a fresh project still needs those bucket policies.
 
 The recommendation migration seeds **5 plant classes**, **16 disease × severity rules**, and **4 medicine research records**. The mobile app also contains a bundled advice fallback.
 
@@ -193,49 +193,49 @@ The recommendation migration seeds **5 plant classes**, **16 disease × severity
 
 In a terminal:
 
-\`\`\`powershell
+```powershell
 cd C:\Users\Obaid\PlantPulse-AI\backend
 py -3.10 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 .\.venv\Scripts\python.exe -m pip install ultralytics opencv-python numpy pillow
 .\.venv\Scripts\python.exe -m uvicorn main:app --host 0.0.0.0 --port 8000
-\`\`\`
+```
 
-**Important:** \`backend/requirements.txt\` currently contains only the FastAPI/Uvicorn/upload dependencies; the additional ML/image packages shown above are necessary for a fresh backend environment. If the virtual environment already exists, skip the \`py -3.10 -m venv .venv\` step.
+**Important:** `backend/requirements.txt` currently contains only the FastAPI/Uvicorn/upload dependencies; the additional ML/image packages shown above are necessary for a fresh backend environment. If the virtual environment already exists, skip the `py -3.10 -m venv .venv` step.
 
 Place the separately backed-up trained model here:
 
-\`\`\`text
+```text
 backend/models/best.pt
-\`\`\`
+```
 
 Test on the laptop:
 
-- \`http://127.0.0.1:8000/health\` — service status
-- \`http://127.0.0.1:8000/docs\` — FastAPI Swagger interface
+- `http://127.0.0.1:8000/health` — service status
+- `http://127.0.0.1:8000/docs` — FastAPI Swagger interface
 
-Then test from the phone using \`http://YOUR-LAPTOP-WIFI-IP:8000/docs\`. If the phone cannot open it, check the IP, Wi-Fi/hotspot isolation, firewall and whether the backend is running.
+Then test from the phone using `http://YOUR-LAPTOP-WIFI-IP:8000/docs`. If the phone cannot open it, check the IP, Wi-Fi/hotspot isolation, firewall and whether the backend is running.
 
 ### 5. Start Expo
 
 In a second terminal:
 
-\`\`\`powershell
+```powershell
 cd C:\Users\Obaid\PlantPulse-AI\mobile
 npm install
 npx expo start --clear
-\`\`\`
+```
 
-Scan the Expo QR code with Expo Go. If you edit \`mobile/.env\`, restart Expo so the application receives the updated API address.
+Scan the Expo QR code with Expo Go. If you edit `mobile/.env`, restart Expo so the application receives the updated API address.
 
 The app needs a **running laptop backend** for ML inference. Supabase services require internet connectivity.
 
 ## Prediction and image handling
 
-- \`POST /predict\` accepts JPEG, PNG or WebP uploads (maximum **8 MB**, maximum **12 megapixels** at the backend).
+- `POST /predict` accepts JPEG, PNG or WebP uploads (maximum **8 MB**, maximum **12 megapixels** at the backend).
 - The mobile app prepares camera/gallery images, resizes their longest side to at most **1920 pixels**, and saves them as JPEG before upload.
 - The YOLO confidence acceptance threshold is **0.75**.
-- An empty detection, low confidence, missing/empty mask, or diseased-class result with no measured affected area returns \`uncertain\`.
+- An empty detection, low confidence, missing/empty mask, or diseased-class result with no measured affected area returns `uncertain`.
 - Only healthy/diseased accepted predictions are stored in scan history.
 - Disease red overlays and concentration heatmaps are produced by the Python backend. Healthy results have no severity or lesion visualization.
 
@@ -290,15 +290,15 @@ These are **manual test cases**, not claims that they have all passed.
 
 This repository is already connected to GitHub. To publish additional local changes:
 
-\`\`\`powershell
+```powershell
 git status
 git add <paths-you-want-to-commit>
 git diff --cached --name-only
 git commit -m "Describe the update"
 git push origin main
-\`\`\`
+```
 
-Never commit \`mobile/.env\`, backend secrets, datasets or trained model weights. Back up \`backend/models/best.pt\` separately (for example, in a private cloud drive).
+Never commit `mobile/.env`, backend secrets, datasets or trained model weights. Back up `backend/models/best.pt` separately (for example, in a private cloud drive).
 
 ---
 
