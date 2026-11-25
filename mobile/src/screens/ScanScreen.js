@@ -1,3 +1,4 @@
+import { prepareLeafPhoto } from '../services/imageProcessingService';
 import { saveCompletedScan } from '../services/scanSaveService';
 import React, { useState } from 'react';
 import {
@@ -53,7 +54,11 @@ export default function ScanScreen({ navigation }) {
       }
 
       if (!result.canceled && result.assets?.length) {
-        setPhoto(result.assets[0]);
+        const preparedPhoto = await prepareLeafPhoto(
+          result.assets[0]
+        );
+
+        setPhoto(preparedPhoto);
         setPrediction(null);
       }
     } catch (error) {

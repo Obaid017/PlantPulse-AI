@@ -34,29 +34,66 @@ export default function DiagnosisResultScreen({
   onViewTreatment,
   onShareCommunity,
 }) {
-  const healthy = prediction.status === 'healthy';
-  const uncertain = prediction.status === 'uncertain';
+  const status = prediction?.status;
+
+  // A usable segmentation mask is required.
+  const hasLeafMask = prediction?.has_leaf_mask === true;
+
+  const severityValue = Number(prediction?.severity_percent);
+
+  const hasAffectedArea =
+    prediction?.severity_percent != null &&
+    Number.isFinite(severityValue) &&
+    severityValue > 0;
+
+  const validSeverityLevels = [
+    'Low',
+    'Mild',
+    'Moderate',
+    'Severe',
+  ];
+
+  const healthy =
+    status === 'healthy' &&
+    hasLeafMask;
+
+  const validDisease =
+    status === 'diseased' &&
+    hasLeafMask &&
+    hasAffectedArea &&
+    Boolean(prediction?.disease_name) &&
+    validSeverityLevels.includes(prediction?.severity_level);
+
+  // Anything not confidently usable is treated as uncertain.
+  const uncertain = !healthy && !validDisease;
 
   const title = uncertain
-    ? 'Please try another photo'
+    ? 'Please take another leaf photo'
     : healthy
       ? 'Your leaf looks healthy'
-      : prediction.disease_name || 'Possible leaf disease';
+      : prediction.disease_name;
+
+  const confidenceValue = Number(prediction?.confidence);
 
   const confidence =
-    prediction.confidence == null
-      ? null
-      : Number(prediction.confidence).toFixed(1);
+    prediction?.confidence != null &&
+    Number.isFinite(confidenceValue)
+      ? confidenceValue.toFixed(1)
+      : null;
 
-  const affectedArea =
-    prediction.severity_percent == null
-      ? null
-      : Number(prediction.severity_percent).toFixed(2);
+  const affectedArea = validDisease
+    ? severityValue.toFixed(2)
+    : null;
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Plant Health Report</Text>
-      <Text style={styles.urdu}>پودے کی صحت کی رپورٹ</Text>
+      <Text style={styles.heading}>
+        Plant Health Report
+      </Text>
+
+      <Text style={styles.urdu}>
+        پودے کی صحت کی رپورٹ
+      </Text>
 
       <Image
         source={{ uri: photoUri }}
@@ -65,49 +102,72 @@ export default function DiagnosisResultScreen({
       />
 
       <View style={styles.summaryCard}>
-        <Text style={styles.smallLabel}>YOUR RESULT</Text>
+        <Text style={styles.smallLabel}>
+          YOUR RESULT
+        </Text>
 
-        <Text style={styles.diseaseName}>{title}</Text>
+        <Text style={styles.diseaseName}>
+          {title}
+        </Text>
 
         <Text style={styles.description}>
           {uncertain
-            ? 'We could not identify the problem clearly. Take a photo in better light.'
+            ? 'We could not confirm a reliable groundnut leaf result. Please take another clear photo of a groundnut leaf.'
             : healthy
               ? 'No disease was identified in this photo. Continue checking your crop regularly.'
               : 'Possible disease detected. Check the affected parts below.'}
         </Text>
 
+        {uncertain && (
+          <Text style={styles.urduMessage}>
+            مونگ پھلی کے پتے کی صاف تصویر دوبارہ لیں۔
+          </Text>
+        )}
+
         {!uncertain && confidence !== null && (
           <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>How sure we are</Text>
-            <Text style={styles.infoValue}>{confidence}%</Text>
+            <Text style={styles.infoLabel}>
+              How sure we are
+            </Text>
+
+            <Text style={styles.infoValue}>
+              {confidence}%
+            </Text>
           </View>
         )}
 
-        {!healthy && !uncertain && (
+        {validDisease && (
           <>
             <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Leaf area affected</Text>
+              <Text style={styles.infoLabel}>
+                Leaf area affected
+              </Text>
+
               <Text style={styles.infoValue}>
-                {affectedArea === null ? 'Not available' : `${affectedArea}%`}
+                {affectedArea}%
               </Text>
             </View>
 
             <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Affected-area level</Text>
+              <Text style={styles.infoLabel}>
+                Affected-area level
+              </Text>
+
               <Text style={styles.infoValue}>
-                {prediction.severity_level || 'Not available'}
+                {prediction.severity_level}
               </Text>
             </View>
 
             <Text style={styles.note}>
-              This affected-area percentage is an estimate based on leaf color.
+              This affected-area percentage is an estimate
+              based on the photographed leaf, not the
+              entire field.
             </Text>
           </>
         )}
       </View>
 
-      {!healthy && !uncertain && (
+      {validDisease && (
         <>
           <ResultImage
             title="Affected Parts"
@@ -121,26 +181,50 @@ export default function DiagnosisResultScreen({
         </>
       )}
 
-      <View style={styles.actionGroup}>
-        <Pressable style={styles.treatmentButton} onPress={onViewTreatment} accessibilityRole="button">
-          <Text style={styles.treatmentText}>{healthy ? 'View Care & Prevention' : 'View Treatment & Recommendations'}</Text>
-        </Pressable>
-        <Pressable style={styles.shareButton} onPress={onShareCommunity} accessibilityRole="button">
-          <Text style={styles.shareText}>Share to Community</Text>
-        </Pressable>
-      </View>
+      {/* Treatment is shown only for usable results. */}
+      {!uncertain && (
+        <View style={styles.actionGroup}>
+          <Pressable
+            style={styles.treatmentButton}
+            onPress={onViewTreatment}
+            accessibilityRole="button"
+          >
+            <Text style={styles.treatmentText}>
+              {healthy
+                ? 'View Care & Prevention'
+                : 'View Treatment & Recommendations'}
+            </Text>
+          </Pressable>
 
+          <Pressable
+            style={styles.shareButton}
+            onPress={onShareCommunity}
+            accessibilityRole="button"
+          >
+            <Text style={styles.shareText}>
+              Share to Community
+            </Text>
+          </Pressable>
+        </View>
+      )}
+
+      {/* Always allow the farmer to retry. */}
       <Pressable
         style={styles.button}
         onPress={onCheckAnother}
         accessibilityRole="button"
       >
-        <Text style={styles.buttonText}>Check Another Leaf</Text>
+        <Text style={styles.buttonText}>
+          {uncertain
+            ? 'Take Another Photo'
+            : 'Check Another Leaf'}
+        </Text>
       </Pressable>
 
       <Text style={styles.footer}>
-        Check your plants regularly. This app helps identify possible
-        problems but does not replace an agriculture expert.
+        {uncertain
+          ? 'Please photograph a groundnut leaf in good light. No disease diagnosis or treatment recommendation was made.'
+          : 'Check your plants regularly. This app helps identify possible problems but does not replace an agriculture expert.'}
       </Text>
     </View>
   );
@@ -194,6 +278,12 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     marginBottom: 12,
   },
+  urduMessage: {
+    color: GREEN,
+    fontSize: 16,
+    lineHeight: 26,
+    marginBottom: 10,
+  },
   infoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -236,11 +326,41 @@ const styles = StyleSheet.create({
     backgroundColor: '#000000',
     borderRadius: 12,
   },
-  actionGroup: { marginTop: 10, marginBottom: 16, gap: 12 },
-  treatmentButton: { alignItems: 'center', justifyContent: 'center', backgroundColor: '#E5F0A5', padding: 16, borderRadius: 17, minHeight: 60 },
-  treatmentText: { fontSize: 16, fontWeight: '800', color: GREEN, textAlign: 'center' },
-  shareButton: { alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFFFFF', borderColor: '#DDE6D8', borderWidth: 1, borderRadius: 17, padding: 16, minHeight: 60 },
-  shareText: { fontSize: 16, fontWeight: '700', color: GREEN, textAlign: 'center' },
+  actionGroup: {
+    marginTop: 10,
+    marginBottom: 16,
+    gap: 12,
+  },
+  treatmentButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#E5F0A5',
+    padding: 16,
+    borderRadius: 17,
+    minHeight: 60,
+  },
+  treatmentText: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: GREEN,
+    textAlign: 'center',
+  },
+  shareButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+    borderColor: '#DDE6D8',
+    borderWidth: 1,
+    borderRadius: 17,
+    padding: 16,
+    minHeight: 60,
+  },
+  shareText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: GREEN,
+    textAlign: 'center',
+  },
   button: {
     backgroundColor: '#E5F0A5',
     borderRadius: 18,

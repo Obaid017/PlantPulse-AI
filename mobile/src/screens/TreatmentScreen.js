@@ -74,7 +74,17 @@ export default function TreatmentScreen({ navigation, route }) {
   }, [diseaseName, severityLevel, status]);
 
   const healthy = status === 'healthy';
-  const uncertain = status === 'uncertain' || status === 'low_confidence';
+  const uncertain =
+    status === 'uncertain' ||
+    status === 'invalid_image' ||
+    status === 'low_confidence' ||
+    (
+      status === 'diseased' &&
+      (
+        severityPercent == null ||
+        Number(severityPercent) <= 0
+      )
+    ); 
   const localCare = getDiseaseCare(healthy ? 'healthy' : diseaseName);
   const care = localCare && catalog?.disease
     ? { ...localCare, ...catalog.disease }

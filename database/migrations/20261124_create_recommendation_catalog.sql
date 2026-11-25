@@ -1,8 +1,3 @@
--- PlantPulse AI: researched recommendation catalog (read-only for signed-in farmers).
--- Run once in Supabase SQL Editor AFTER review. Existing scan history is unchanged.
--- IMPORTANT: These are scouting and early-intervention actions, NOT approved spray thresholds.
--- Product entries are leads, not prescriptions. label_dose stays NULL until
--- a Pakistan-registered groundnut-specific product label is checked.
 
 create table if not exists public.diseases (
   code text primary key,
