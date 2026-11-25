@@ -1,4 +1,8 @@
-"""PlantPulse AI backend entry point."""
+"""PlantPulse AI FastAPI entry point.
+
+Local development API; deploy behind authentication and HTTPS before
+exposing it publicly.
+"""
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -6,10 +10,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from routes.health import router as health_router
 from routes.predict import router as predict_router
 
-app = FastAPI(title="PlantPulse AI API", version="0.1.0")
-app.include_router(predict_router)
+app = FastAPI(title="PlantPulse AI API", version="0.2.0")
 
-# CORS is useful for Expo Web. Phone apps are not browser-origin restricted.
+# CORS mainly matters for Expo Web; native Android does not enforce
+# browser origin restrictions. Keep this list limited to local dev origins.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
