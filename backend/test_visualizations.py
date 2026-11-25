@@ -1,6 +1,7 @@
 
 import requests
 import base64
+import mimetypes
 from pathlib import Path
 
 # FastAPI prediction endpoint
@@ -19,7 +20,13 @@ if not image.is_file():
 with open(image, "rb") as file:
     response = requests.post(
         API_URL,
-        files={"file": (image.name, file, "image/jpeg")},
+        files={
+            "file": (
+                image.name,
+                file,
+                mimetypes.guess_type(image.name)[0] or "image/jpeg",
+            )
+        },
         timeout=180,
     )
 
@@ -38,8 +45,8 @@ output_folder.mkdir(exist_ok=True)
 
 # Save both visualizations
 for key, filename in [
-    ("affected_overlay", "red_overlay.jpg"),
-    ("concentration_heatmap", "heatmap.jpg"),
+    ("affected_overlay", "red_overlay.png"),
+    ("concentration_heatmap", "heatmap.png"),
 ]:
     encoded = data.get(key)
 
