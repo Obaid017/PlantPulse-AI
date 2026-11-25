@@ -32,8 +32,18 @@ function getBase64(dataUri) {
 }
 
 export async function saveCompletedScan(photo, prediction) {
-  // Never save unclear/uncertain results as a diagnosis
-  if (!['healthy', 'diseased'].includes(prediction?.status)) {
+  // Save only a consistent accepted result. In particular, a disease
+  // label with 0% measured affected area must NOT enter History.
+  const healthy = prediction?.status === 'healthy' &&
+    prediction.has_leaf_mask === true;
+  const diseased = prediction?.status === 'diseased' &&
+    prediction.has_leaf_mask === true &&
+    prediction.severity_percent != null &&
+    Number.isFinite(Number(prediction.severity_percent)) &&
+    Number(prediction.severity_percent) > 0 &&
+    ['Low', 'Mild', 'Moderate', 'Severe'].includes(prediction.severity_level);
+
+  if (!healthy && !diseased) {
     return null;
   }
 
