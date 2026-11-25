@@ -37,7 +37,6 @@ import ProfileScreen from '../screens/ProfileScreen';
 import ResultScreen from '../screens/ResultScreen';
 import SavedScanDetailScreen from '../screens/SavedScanDetailScreen';
 import TreatmentScreen from '../screens/TreatmentScreen';
-import CommunityDraftScreen from '../screens/CommunityDraftScreen';
 
 const Stack = createNativeStackNavigator();
 const Tabs = createBottomTabNavigator();
@@ -174,10 +173,6 @@ export default function RootNavigator() {
             component={TreatmentScreen}
           />
 
-          <Stack.Screen
-            name="CommunityDraft"
-            component={CommunityDraftScreen}
-          />
         </>
       ) : (
         <>

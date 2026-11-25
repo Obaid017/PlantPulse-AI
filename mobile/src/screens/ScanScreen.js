@@ -127,12 +127,11 @@ async function checkPlant() {
             severityLevel: prediction.severity_level,
             severityPercent: prediction.severity_percent,
           })}
-          onShareCommunity={() => navigation.getParent()?.navigate('CommunityDraft', {
-            diseaseName: prediction.disease_name,
-            status: prediction.status,
-            severityPercent: prediction.severity_percent,
-            imageUri: photo.uri,
-          })}
+          onShareCommunity={() => Alert.alert(
+            'Community Coming Soon',
+            'You will be able to share leaf photos and ask other farmers for help when the Community Hub is ready. Nothing has been shared.',
+            [{ text: 'OK' }]
+          )}
         />
       ) : (
         <View style={styles.container}>
@@ -164,7 +163,6 @@ async function checkPlant() {
             </View>
           ) : (
             <View style={styles.placeholder}>
-              <Text style={styles.placeholderIcon}>🌿</Text>
               <Text style={styles.placeholderTitle}>
                 Your leaf photo will appear here
               </Text>
@@ -181,7 +179,7 @@ async function checkPlant() {
             accessibilityRole="button"
           >
             <Text style={styles.photoButtonText}>
-              📷  Take Photo
+              Take Photo
             </Text>
           </Pressable>
 
@@ -275,10 +273,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     marginBottom: 18,
-  },
-  placeholderIcon: {
-    fontSize: 46,
-    marginBottom: 12,
   },
   placeholderTitle: {
     color: GREEN,
