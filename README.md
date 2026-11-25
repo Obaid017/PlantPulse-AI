@@ -174,16 +174,11 @@ Use the IPv4 address under the **active Wi-Fi adapter**, not VMware, WSL or disc
 In Supabase **SQL Editor**, paste and execute the actual SQL contents (not the filename) of:
 
 1. `database/migrations/20261124_create_scan_history.sql`
-2. `database/migrations/20261124_create_recommendation_catalog.sql`
+2. `database/migrations/20261125_add_scan_image_paths.sql`
+3. `database/migrations/20261124_create_recommendation_catalog.sql`
 
-For scan-image saving, ensure `public.scan_history` also has these fields (the original history migration does **not** create them):
+The second migration adds the three scan-image paths required by the existing mobile saving flow. It is safe to apply if those columns were already added manually. **Do not rerun the original scan-history script if its named policies already exist.**
 
-```sql
-ALTER TABLE public.scan_history
-  ADD COLUMN IF NOT EXISTS original_image_path TEXT,
-  ADD COLUMN IF NOT EXISTS affected_overlay_path TEXT,
-  ADD COLUMN IF NOT EXISTS heatmap_path TEXT;
-```
 
 Create a **private** Supabase Storage bucket named `plant-scans`. Configure appropriate Storage policies for authenticated uploads, reads and cleanup scoped to each user's own folder. The mobile code stores objects under `<user-id>/<scan-id-folder>/...` and retrieves temporary signed URLs. The application has previously been configured manually in Supabase; a fresh project still needs those bucket policies.
 
@@ -201,7 +196,7 @@ py -3.10 -m venv .venv
 .\.venv\Scripts\python.exe -m uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
-**Important:** `backend/requirements.txt` currently contains only the FastAPI/Uvicorn/upload dependencies; the additional ML/image packages shown above are necessary for a fresh backend environment. If the virtual environment already exists, skip the `py -3.10 -m venv .venv` step.
+**Important:** `backend/requirements.txt` now lists the FastAPI, YOLO, OpenCV, NumPy, Pillow and local test dependencies. A fresh install can be large because Ultralytics requires PyTorch. If the virtual environment already exists, skip `py -3.10 -m venv .venv`; install missing packages with the requirements command only.
 
 Place the separately backed-up trained model here:
 
