@@ -1,81 +1,78 @@
-# Module 2 — Farmer-first Groundnut Treatment and Prevention
+# Module 2 — Groundnut Treatment, Early Action and Prevention
 
-## Goal
+**Status:** Core screen and research-informed rules implemented. Local pesticide label verification and field validation are still required.
 
-Detect possible groundnut leaf disease early, explain likely causes and give
-practical advice to inspect the field before infection spreads. A single-leaf
-color-based severity estimate is not the percentage of an entire field and
-**must not** determine fungicide dose or frequency.
+## How this module works
 
-## Implemented
+1. A farmer checks a groundnut leaf with the mobile application.
+2. FastAPI returns a possible disease, confidence, affected-area estimate and images.
+3. **For accepted results**, the Report page offers **View Treatment & Recommendations** (or **View Care & Prevention** for a healthy leaf).
+4. The treatment screen opens separately and includes a small **English / اردو** selector.
+5. Treatment shows: **what to do today**, field questions, symptoms, why disease occurs, how it spreads, prevention, medicine reference entries, safety advice, and follow-up.
+6. Farmer's answers to three field questions can change the urgency and precautions shown during this session. They are **not yet saved** in scan history.
+7. Saved reports in History can open the treatment screen too.
 
-- 4 disease classes × 4 severity levels = 16 early-action rules.
-- Low / Mild / Moderate / Severe are the EXISTING project categories.
-- Healthy leaves receive prevention advice and no automatic fungicide.
-- Uncertain predictions prompt a clearer picture, not chemical advice.
-- View Treatment button after Scan results; also available for saved History reports.
-- Treatment screen: bilingual English/Urdu switch, causes, symptoms, spread,
-  prevention, medicine candidates, follow-up and agricultural escalation.
-- Three optional field questions: how many plants, wet weather, previous spray.
-- Pakistan-market product examples with visible evidence limitations:
-  - FMC Soduku: manufacturer lists peanut leaf spot, **current pack label still required**.
-  - Bayer Nativo: referenced by BARI Chakwal for groundnut leaf spot;
-    present crop-label status still needs verification.
-  - Jaffer Greenopas: Pakistan-market rust product, **groundnut use not verified**.
-  - UPL Evito: manufacturer lists Alternaria on other crops, **NOT for groundnut based on this evidence**.
-- Separate Community Draft route offers native TEXT sharing to a trusted person.
-  It does **not** publish to the in-app community or attach a photo yet.
+## Decision rules
 
-## How to deploy safely
+The four trained disease classes are **Alternaria Leaf Spot**, **Early Leaf Spot**, **Late Leaf Spot** and **Rust**, plus Healthy Leaf.
 
-1. Review and merge the pull request on GitHub into main.
-2. In VS Code project root:
-   `git pull origin main`
-3. Open Supabase SQL Editor and paste the *contents*, not filename, of:
-   `database/migrations/20261124_create_recommendation_catalog.sql`
-4. Click Run. Check that three new tables exist:
-   `diseases`, `severity_recommendations`, `medicines`.
-   These are read-only to signed-in farmers through RLS.
-5. In `mobile/` run `npx expo start --clear`.
-6. Check a leaf, tap **View Treatment & Recommendations**, and test English/Urdu
-   and the three field questions.
-7. Open a saved History report and tap the same treatment option.
+The app stores **16 action rules** = 4 diseases × 4 levels:
 
-The mobile app includes built-in care data and will still show the treatment
-guide if the SQL migration has not yet been executed or the network is offline.
-Supabase rows override matching local disease, severity and medicine fields
-once the catalog is installed. This enables controlled future updates.
+- **Low:** 0% < leaf-area estimate ≤ 25%
+- **Mild:** 25% < estimate ≤ 50%
+- **Moderate:** 50% < estimate ≤ 75%
+- **Severe:** 75% < estimate ≤ 100%
 
-## Test checklist
+Healthy does not receive disease severity or fungicide advice. An uncertain/unsupported result should not show treatment. A diseased-class prediction with 0% detected affected area becomes **uncertain**; it must not be prescribed a chemical treatment.
 
-- Test all 4 diagnoses at Low, Mild, Moderate, and Severe (16 cases).
-- Low rust should prompt faster field inspection than Low early leaf spot.
-- A higher leaf percentage should NOT produce a higher chemical dose.
-- Rain / many affected plants / already sprayed should change the field advice.
-- No disease name, confidence or images should be simulated in production.
-- No medicine is shown as Pakistan-label-verified unless pack labeling is checked.
-- Old scan reports should open without a new ML inference.
-- No recommendation should be automatically shown in the prediction result itself.
-- Native share from Community Draft is text-only; no user content is published
-  without explicit sharing.
+**Important:** These categories are project-defined descriptions of a single photo, **not approved fungicide dosage or spray decision thresholds**. Even a Low case can need prompt inspection if rust or field-wide spread is suspected.
 
-## Still to implement and verify
+## Medicine information and limitations
 
-- Farmer field question answers are currently local to the Treatment screen;
-  their persistence in scan history is a later step.
-- In-app community posts, comments and photo sharing are not implemented.
-- Exact product registration and label-approved dose, timing, interval,
-  re-entry and harvest waiting period require manufacturer/current-pack evidence
-  and local agricultural review before being enabled.
-- Human testing on Android / Expo Go is still required.
+The catalog stores 4 Pakistan-market **research examples**, not automatically approved sprays:
 
-## Primary Pakistan research references
+| Candidate product | Source/evidence boundary |
+| --- | --- |
+| FMC Soduku | Manufacturer mentions peanut leaf spot; current pack label and exact disease instructions must be verified |
+| Bayer Nativo | Groundnut leaf spot referenced in BARI Chakwal material; current Pakistan groundnut label not established here |
+| Jaffer Greenopas | General rust reference; **groundnut rust use NOT verified** |
+| UPL Evito | Alternaria/rust references on other crops; **NOT a verified groundnut option** |
 
-- FMC Pakistan Soduku: https://ag.fmc.com/pk/en/products/fungicides/soduku
-- BARI Chakwal Groundnut Production:
-  https://barichakwal.punjab.gov.pk/system/files/Groundnut%20report_1.pdf
-- Bayer Pakistan Nativo:
-  https://www.cropscience.bayer.com.pk/en-pk/products/product---detail-page.html/fungicides/nativo_75_wg.html
-- Jaffer Greenopas:
-  https://www.jaffer.com/jaspl/product/131/greenopas-17-se/
-- UPL Pakistan Evito: https://pk.uplcorp.com/product-details/evito
+Medicines cannot be dosed according to estimated image severity. **Do not** offer application rates, repeat intervals or harvest waiting periods until confirmed on an approved current Pakistan groundnut-specific product label.
+
+Reference sources are linked from the relevant records in `mobile/src/data/medicineCatalog.js` and the Supabase migration.
+
+## Data sources
+
+- Bundled explanations: `mobile/src/data/diseaseCare.js`
+- 16 action rules and field urgency: `mobile/src/data/severityRules.js`
+- Research product references: `mobile/src/data/medicineCatalog.js`
+- Database lookup with local fallback: `mobile/src/services/recommendationService.js`
+- Farmer screen: `mobile/src/screens/TreatmentScreen.js`
+- Supabase seed migration: `database/migrations/20261124_create_recommendation_catalog.sql`
+
+The three read-only Supabase tables are `diseases`, `severity_recommendations` and `medicines`. Run the actual contents of the migration in Supabase SQL Editor if the tables are not set up.
+
+## Community feature
+
+**Share to Community is not active yet.** It shows **Community Coming Soon** and does not upload, publish or share a photo. The Community tab is also a coming-soon screen. The older `CommunityDraftScreen` flow has been removed.
+
+## Validation checklist
+
+- [ ] Check all four diseases at all four severity levels.
+- [ ] Test English and Urdu text in all sections on a real phone.
+- [ ] Verify Healthy Leaf receives prevention only.
+- [ ] Verify uncertain result and disease + 0% do not offer treatment.
+- [ ] Review older saved reports for zero-severity disease records.
+- [ ] Test weather, many affected plants, and previously sprayed questions.
+- [ ] Verify research-only medicine products are **not presented as approved groundnut spray instructions**.
+- [ ] Verify no Community post or image is uploaded.
+
+## Future work
+
+- Validate crop-specific disease management in Pakistan with agricultural research/extension experts.
+- Confirm actual current pesticide registrations/labels before including spray rates or application schedules.
+- Save field answers, advice version and source review date with each scan.
+- Add a dependable groundnut-leaf validator before using treatment advice in the field.
+
+For installation and database details, refer to [`../README.md`](../README.md) and [`../database/README.md`](../database/README.md).
