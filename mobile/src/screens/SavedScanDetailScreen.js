@@ -78,6 +78,13 @@ export default function SavedScanDetailScreen({
   }, [scanId, retry]);
 
   const healthy = report?.status === 'healthy';
+  const validDisease =
+    report?.status === 'diseased' &&
+    report.severity_percent != null &&
+    Number.isFinite(Number(report.severity_percent)) &&
+    Number(report.severity_percent) > 0 &&
+    ['Low', 'Mild', 'Moderate', 'Severe'].includes(report.severity_level);
+  const usableReport = healthy || validDisease;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -194,6 +201,16 @@ export default function SavedScanDetailScreen({
               </>
             )}
 
+            {!usableReport && (
+              <View style={styles.reviewNotice}>
+                <Text style={styles.reviewText}>
+                  This older report has no reliable affected-area result.
+                  Please check a new leaf before using treatment advice.
+                </Text>
+              </View>
+            )}
+
+            {usableReport && (
             <View style={styles.actionGroup}>
               <Pressable style={styles.careButton} accessibilityRole="button" onPress={() => navigation.navigate('Treatment', {
                 diseaseName: report.disease_name,
@@ -212,6 +229,7 @@ export default function SavedScanDetailScreen({
                 <Text style={styles.communityButtonText}>Share to Community</Text>
               </Pressable>
             </View>
+            )}
 
             <Text style={styles.note}>
               This is an automated estimate. For treatment
@@ -319,6 +337,17 @@ const styles = StyleSheet.create({
     color: GREEN,
     fontWeight: '800',
     marginTop: 16,
+  },
+  reviewNotice: {
+    backgroundColor: '#FFF4E9',
+    borderRadius: 14,
+    padding: 16,
+    marginTop: 20,
+  },
+  reviewText: {
+    color: GREEN,
+    fontSize: 15,
+    lineHeight: 23,
   },
   actionGroup: { gap: 12, marginTop: 22 },
   careButton: { backgroundColor: '#E5F0A5', padding: 18, borderRadius: 18, minHeight: 55, alignItems: 'center' },
