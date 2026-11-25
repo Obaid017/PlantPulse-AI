@@ -192,7 +192,6 @@ In a terminal:
 cd C:\Users\Obaid\PlantPulse-AI\backend
 py -3.10 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
-.\.venv\Scripts\python.exe -m pip install ultralytics opencv-python numpy pillow
 .\.venv\Scripts\python.exe -m uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
