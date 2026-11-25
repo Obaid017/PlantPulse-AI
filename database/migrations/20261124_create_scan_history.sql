@@ -1,6 +1,7 @@
 -- Run once in Supabase Dashboard > SQL Editor.
--- Actual scan records will be saved by our future FastAPI integration.
+-- The React Native app currently saves accepted scan records via Supabase Auth and RLS.
 -- Do not insert fake/demo scan rows.
+-- Run this initial setup script only once: its named RLS policies do not use IF NOT EXISTS.
 
 create table if not exists public.scan_history (
   id uuid primary key default gen_random_uuid(),
@@ -23,7 +24,7 @@ create policy "Farmer reads own scans"
   on public.scan_history for select to authenticated
   using ((select auth.uid()) = user_id);
 
--- Prepared for later when FastAPI saves authenticated scans.
+-- The authenticated farmer can insert only their own accepted scan records.
 create policy "Farmer adds own scans"
   on public.scan_history for insert to authenticated
   with check ((select auth.uid()) = user_id);
